@@ -3,7 +3,54 @@ import qrcode
 from PIL import Image, ImageDraw, ImageFont
 import time
 import csv
+from docx import Document
+from docx.shared import Inches
+from docx.enum.section import WD_ORIENTATION
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 
+def create_WordDocument():
+    # Define the folder containing images
+    image_folder = "URLS"
+
+    # Get all image file paths
+    image_files = [os.path.join(image_folder, f) for f in os.listdir(image_folder) if
+                   f.lower().endswith(('png', 'jpg', 'jpeg'))]
+
+    # Create a new Word document
+    doc = Document()
+
+    # Set document to landscape mode
+    section = doc.sections[0]
+    section.orientation = WD_ORIENTATION.LANDSCAPE
+    section.page_width, section.page_height = section.page_height, section.page_width  # Swap width & height
+
+    # Create a table with 2 columns
+    table = doc.add_table(rows=0, cols=2)
+
+    # Iterate over images in pairs
+    for i in range(0, len(image_files), 2):
+        row = table.add_row().cells  # Add a new row
+
+        # Get the paragraph inside the cell
+        paragraph = row[0].paragraphs[0]
+        # Center-align the paragraph
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+        # Add first image
+        row[0].paragraphs[0].add_run().add_picture(image_files[i], width=Inches(3.7), height=Inches(2.2))  # Adjust width as needed
+
+        # Add second image if available
+        paragraph = row[1].paragraphs[0]
+        # Center-align the paragraph
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+        if i + 1 < len(image_files):
+            row[1].paragraphs[0].add_run().add_picture(image_files[i + 1], width=Inches(3.7), height=Inches(2.2))
+
+    # Save the Word document
+    doc.save("Images_Table.docx")
+    print("Word document created successfully!")
+    return True
 
 def create_tag_text_logoRPCI(qr_image_with_TAG_Logo,qr_height,qr_width):
     # Open the image file
@@ -188,3 +235,5 @@ with open("TAGS.csv", mode='r', newline='', encoding='utf-8') as file:
         # Save image
         output_path = output_path = f'URLS/{TAG}.png'
         final_image_cardsize.save(output_path)
+#Lllevar Imagenes a Microsoft Word
+final = create_WordDocument()
