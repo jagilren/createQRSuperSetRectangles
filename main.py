@@ -7,13 +7,13 @@ import csv
 
 def create_tag_text_logoRPCI(qr_image_with_TAG_Logo,qr_height,qr_width):
     # Open the image file
-    image_logo = Image.open("Aros _RPCI.jpg")
+    image_logo = Image.open("LOGO_RPCI.jpg")
 
     # Resize the image to 200x200 pixels
     resized_image_logo = image_logo.resize((int(white_rect_width/(2.5)), int(white_rect_width/2.5)))
     #Pone logo grande de RPCI a la derecha del QR y encima del Texto del TAG
     logo_x = white_rect_width/2 + 15
-    logo_y = top_margin + 20
+    logo_y = top_margin + 10
 
     # Paste QR  Code created above  onto background
     qr_image_with_TAG_Logo.paste(resized_image_logo, (int(logo_x), int(logo_y)))
