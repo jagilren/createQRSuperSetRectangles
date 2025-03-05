@@ -5,6 +5,118 @@ import time
 import csv
 
 
+def create_tag_text_logoRPCI(qr_image_with_TAG_Logo,qr_height,qr_width):
+    # Open the image file
+    image_logo = Image.open("Aros _RPCI.jpg")
+
+    # Resize the image to 200x200 pixels
+    resized_image_logo = image_logo.resize((int(white_rect_width/(2.5)), int(white_rect_width/2.5)))
+    #Pone logo grande de RPCI a la derecha del QR y encima del Texto del TAG
+    logo_x = white_rect_width/2 + 15
+    logo_y = top_margin + 20
+
+    # Paste QR  Code created above  onto background
+    qr_image_with_TAG_Logo.paste(resized_image_logo, (int(logo_x), int(logo_y)))
+    return qr_image_with_TAG_Logo
+
+
+def create_TagTex_at_Bottom(qr_image):
+    # Function for add text to bottom of QR Code
+    # Create image with white background
+
+    image = Image.new("RGB", (white_rect_width, white_rect_height), BACKGROUND_COLOR)
+    draw = ImageDraw.Draw(image)
+
+    # Calculate QR position
+    qr_x = int(white_rect_width *0.0000)  #(white_rect_width - qr_size) // 2
+    qr_y = top_margin
+
+    # Paste QR  Code created above  onto background
+    image.paste(qr_image, (qr_x, qr_y))
+
+    # Calculate text position and size
+    try:
+        font_path = "C:/Windows/Fonts/arialbd.ttf"  # Adjust if using Mac/Linux
+        font_size = 1
+
+        # Find optimal font size to match QR width
+        while True:
+            font = ImageFont.truetype(font_path, font_size)
+            text_width = font.getlength(TAG)
+            #Ancho También debe ser proporcional al # de carácteres.
+            #Debemos establecer otro condicional
+            if text_width > BASE_WIDTH/1.64 * 1.1 and len(TAG)>12:
+                break
+
+            elif text_width > BASE_WIDTH/1.64 * 0.85 and len(TAG)>6:
+                break
+            elif text_width > BASE_WIDTH / 1.64 * 0.4 and len(TAG) <= 6:
+                break
+            font_size += 1
+
+        font_size = max(font_size - 1, 1)
+        font = ImageFont.truetype(font_path, font_size)
+
+        # Step1  Define Initial height of Text (TAG)
+        text_bbox = font.getbbox(TAG)
+        text_width = text_bbox[2] -text_bbox[0]
+        if  len(TAG)>12:
+            text_height = int((text_bbox[3] - text_bbox[1])*2) #Se multiplica por un factor reductor para que el texto se un poc más alto
+        else:
+            text_height = int((text_bbox[3] - text_bbox[
+                1])*1)  # Se multiplica por un factor reductor para que el texto no sea tan alto
+
+        # Create a transparent image sized to the text's bounding box
+        text_image = Image.new("RGBA", (text_width, text_height), (0, 0, 0, 0))
+        text_draw = ImageDraw.Draw(text_image)
+
+        # Draw the text onto the transparent image (offset by bbox's left/top)
+        text_draw.text((-text_bbox[0], -text_bbox[1]), TAG, font=font, fill="black")
+
+
+        # STEP 2: Resize the text to reduce height (keep original width), ignore proportional aspect ratio of font
+        if len(TAG)<12: #Para Textos que no son muy largos es necesario reducir la Heigth
+            scale_factor = 0.65
+        else: #Para Textos largos no es necesario reducir la Heigth
+            scale_factor = 1
+
+        new_height = int(text_height * scale_factor)
+        resized_text = text_image.resize(
+            (text_width, new_height),  # Keep width, reduce height
+            resample=Image.Resampling.LANCZOS # High-quality resampling
+        )
+
+        # STEP 3: Paste the resized text onto the base image
+        # --------------------------------------------------
+
+        text_x = int(white_rect_width//2 - (font.getlength(TAG)) // 2)
+        text_y = int(qr_y + qr_size  + 0 * ((white_rect_height - qr_y - qr_size - new_height/scale_factor) // 3))
+
+        image.paste(resized_text, (text_x, text_y), resized_text)
+
+
+
+        # Position text below QR Code
+        text_x = 0 #qr_x + (qr_size - font.getlength(TAG)) // 2
+        text_y = qr_y + qr_size - 40 + 0 * ((white_rect_height - qr_y - qr_size - text_height) // 3)
+        #draw.text((text_x, text_y), TAG, fill=TEXT_COLOR, font=font) Removido por uso de Step 3
+
+
+
+        '''#pasar la imagen a un tamaño adecuado para la impresión de la etiqueta en matriz insertada en tabla en Microsoft Word
+        medida_image_MSWord_inch = 4.30 / 2.54
+        dpi_value = BASE_WIDTH/medida_image_MSWord_inch
+        #image.save(output_path, dpi=(dpi_value, dpi_value))
+        print(f"Image saved as {output_path}")'''
+
+
+    except IOError:
+        print("Error: Arial font not found. Using default font.")
+        font = ImageFont.load_default()
+        text_x = qr_x
+        text_y = qr_y + qr_size + 10
+        draw.text((text_x, text_y), TAG, fill=TEXT_COLOR, font=font)
+    return image
 
 def create_qr_with_logo_label_and_frame(url, logo_path, output_path, qr_size, label="BORRAR", logo_size_ratio=0.2, frame_thickness=10,font_path="arialbd.ttf", font_size=48):
     # Create a QR Code instance
@@ -38,7 +150,7 @@ def create_qr_with_logo_label_and_frame(url, logo_path, output_path, qr_size, la
     # Paste the logo onto the QR code
     qr_img.paste(logo, logo_position, mask=logo if "A" in logo.mode else None)
     label_height = frame_thickness + font_size + 10  # Extra space for label and padding
-    return qr_img
+    return qr_img, qr_img.height, qr_img.width
 
 
 logo_path = "Aros _RPCI.jpg"  # Path to your logo image file
@@ -66,102 +178,13 @@ with open("TAGS.csv", mode='r', newline='', encoding='utf-8') as file:
         output_path = f'URLS/{TAG}.png'  # Output file path for the QR code with logo, label, and frame
 
         #Function for create QR Image for each TAG with middle logo in QR image
-        qr_image = create_qr_with_logo_label_and_frame(LINK, logo_path, output_path,qr_size, label=TAG, font_path=font_path)
+        qr_image, qr_height, qr_width = create_qr_with_logo_label_and_frame(LINK, logo_path, output_path,qr_size, label=TAG, font_path=font_path)
 
-        # Configuration
-        # Create image with white background
-        image = Image.new("RGB", (white_rect_width, white_rect_height), BACKGROUND_COLOR)
-        draw = ImageDraw.Draw(image)
-
-        # Calculate QR position
-        qr_x = int(white_rect_width *0.0000)  #(white_rect_width - qr_size) // 2
-        qr_y = top_margin
-
-        # Paste QR  Code created above  onto background
-        image.paste(qr_image, (qr_x, qr_y))
-
-        # Calculate text position and size
-        try:
-            font_path = "C:/Windows/Fonts/arialbd.ttf"  # Adjust if using Mac/Linux
-            font_size = 1
-
-            # Find optimal font size to match QR width
-            while True:
-                font = ImageFont.truetype(font_path, font_size)
-                text_width = font.getlength(TAG)
-                #Ancho También debe ser proporcional al # de carácteres.
-                #Debemos establecer otro condicional
-                if text_width > BASE_WIDTH/1.64 * 1.1 and len(TAG)>12:
-                    break
-
-                elif text_width > BASE_WIDTH/1.64 * 0.85 and len(TAG)>6:
-                    break
-                elif text_width > BASE_WIDTH / 1.64 * 0.4 and len(TAG) <= 6:
-                    break
-                font_size += 1
-
-            font_size = max(font_size - 1, 1)
-            font = ImageFont.truetype(font_path, font_size)
-
-            # Step1  Define Initial height of Text (TAG)
-            text_bbox = font.getbbox(TAG)
-            text_width = text_bbox[2] -text_bbox[0]
-            if  len(TAG)>12:
-                text_height = int((text_bbox[3] - text_bbox[1])*2) #Se multiplica por un factor reductor para que el texto se un poc más alto
-            else:
-                text_height = int((text_bbox[3] - text_bbox[
-                    1])*1)  # Se multiplica por un factor reductor para que el texto no sea tan alto
-
-            # Create a transparent image sized to the text's bounding box
-            text_image = Image.new("RGBA", (text_width, text_height), (0, 0, 0, 0))
-            text_draw = ImageDraw.Draw(text_image)
-
-            # Draw the text onto the transparent image (offset by bbox's left/top)
-            text_draw.text((-text_bbox[0], -text_bbox[1]), TAG, font=font, fill="black")
+        qr_image_with_TAG =create_TagTex_at_Bottom(qr_image)
 
 
-            # Step 2: Resize the text to reduce height (keep original width), ignore proportional aspect ratio of font
-            if len(TAG)<12: #Para Textos que no son muy largos es necesario reducir la Heigth
-                scale_factor = 0.65
-            else: #Para Textos largos no es necesario reducir la Heigth
-                scale_factor = 1
+        final_image_cardsize = create_tag_text_logoRPCI(qr_image_with_TAG,int(qr_height),int(qr_width))
 
-            new_height = int(text_height * scale_factor)
-            resized_text = text_image.resize(
-                (text_width, new_height),  # Keep width, reduce height
-                resample=Image.Resampling.LANCZOS # High-quality resampling
-            )
-
-            # Step 3: Paste the resized text onto the base image
-            # --------------------------------------------------
-
-            text_x = int(white_rect_width//2 - (font.getlength(TAG)) // 2)
-            text_y = int(qr_y + qr_size  + 0 * ((white_rect_height - qr_y - qr_size - new_height/scale_factor) // 3))
-
-            image.paste(resized_text, (text_x, text_y), resized_text)
-
-
-
-            # Position text below QR Code
-            text_x = 0 #qr_x + (qr_size - font.getlength(TAG)) // 2
-            text_y = qr_y + qr_size - 40 + 0 * ((white_rect_height - qr_y - qr_size - text_height) // 3)
-            #draw.text((text_x, text_y), TAG, fill=TEXT_COLOR, font=font) Removido por uso de Step 3
-
-            # Save image
-            output_path = output_path = f'URLS/{TAG}.png'
-            image.save(output_path)
-
-            #pasar la imagen a un tamaño adecuado para la impresión de la eqtique en matriz insertada en tabla en Microsoft Word
-            medida_image_MSWord_inch = 4.30 / 2.54
-            dpi_value = BASE_WIDTH/medida_image_MSWord_inch
-            #image.save(output_path, dpi=(dpi_value, dpi_value))
-            print(f"Image saved as {output_path}")
-
-
-        except IOError:
-            print("Error: Arial font not found. Using default font.")
-            font = ImageFont.load_default()
-            text_x = qr_x
-            text_y = qr_y + qr_size + 10
-            draw.text((text_x, text_y), TAG, fill=TEXT_COLOR, font=font)
-
+        # Save image
+        output_path = output_path = f'URLS/{TAG}.png'
+        final_image_cardsize.save(output_path)
