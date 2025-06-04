@@ -1,4 +1,4 @@
-#main.py genera en Word los QR tipo TCard, está en orientacion portrait
+#main_blowers.py genera en Word los QR tipo Adhesive, está en orientacion landscape
 import os
 import qrcode
 from PIL import Image, ImageDraw, ImageFont
@@ -23,23 +23,12 @@ def create_WordDocument():
 
     # Set document to landscape mode
     section = doc.sections[0]
-    #Establecemos margenes
-    section.top_margin = Inches(1.0)
-    section.bottom_margin = Inches(1.0)
-    section.left_margin = Inches(0.5)
-    section.right_margin = Inches(0.5)
-
     #Hoja en landscape direction Activar para Blowers y CCM
-    #section.orientation = WD_ORIENTATION.LANDSCAPE
-    #section.page_width, section.page_height = section.page_height, section.page_width  # Swap width & height
+    section.orientation = WD_ORIENTATION.LANDSCAPE
+    section.page_width, section.page_height = section.page_height, section.page_width  # Swap width & height
 
     # Create a table with 2 columns
     table = doc.add_table(rows=0, cols=2)
-
-    widths = [Inches(5), Inches(5)]
-    for col_idx, width in enumerate(widths):
-        for cell in table.columns[col_idx].cells:
-            cell.width = width
 
     # Iterate over images in pairs
     for i in range(0, len(image_files), 2):
@@ -51,11 +40,11 @@ def create_WordDocument():
         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
         # Add first image
-        # Para Blowers y CCM
-        #row[0].paragraphs[0].add_run().add_picture(image_files[i], width=Inches(3.7), height=Inches(2.2))
+        #Para Equipos e Instrumentos
+        #row[0].paragraphs[0].add_run().add_picture(image_files[i], width=Inches(3.3),height=Inches(2.16))
+        #Para Blowers y CCM
+        row[0].paragraphs[0].add_run().add_picture(image_files[i], width=Inches(3.7), height=Inches(2.2))
 
-        # Para Equipos e Instrumentos
-        row[0].paragraphs[0].add_run().add_picture(image_files[i], width=Inches(3.3),height=Inches(2.16))
 
         # Add second image if available
         paragraph = row[1].paragraphs[0]
@@ -63,10 +52,10 @@ def create_WordDocument():
         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
         if i + 1 < len(image_files):
-            # Para Equipos e Instrumentos
-            row[1].paragraphs[0].add_run().add_picture(image_files[i + 1], width=Inches(3.3), height=Inches(2.16))
-            # Para Blowers y CCM
-            #row[1].paragraphs[0].add_run().add_picture(image_files[i + 1], width=Inches(3.7), height=Inches(2.2))
+            #Para Equipos e Instrumentos
+            #row[1].paragraphs[0].add_run().add_picture(image_files[i + 1], width=Inches(3.3), height=Inches(2.16))
+            #Para Blowers y CCM
+            row[1].paragraphs[0].add_run().add_picture(image_files[i + 1], width=Inches(3.7), height=Inches(2.2))
 
         # Set text in blank row (needed to control font size)
 
@@ -80,10 +69,10 @@ def create_WordDocument():
 
             paragraph = cell.paragraphs[0]
             run = paragraph.add_run(" ")  # Add a space so font can be applied
-            # Para Equipos e Instrumentos
-            run.font.size = Pt(3)  # Set font size to 3 pt
-            # Para Blowers y CCM
-            #run.font.size = Pt(7)  # Set font size to 7 pt
+            #Para Equipos e Instrumentos
+            #run.font.size = Pt(3)  # Set font size to 3 pt
+            #Para Blowers y CCM
+            run.font.size = Pt(7)  # Set font size to 7 pt
 
 
             #blank_row[0].text = ""  # Left column blank
@@ -99,9 +88,9 @@ def create_tag_text_logoRPCI(qr_image_with_TAG_Logo,qr_height,qr_width):
     image_logo = Image.open("LOGO_RPCI.jpg")
 
     # Resize the image to 200x200 pixels
-    resized_image_logo = image_logo.resize((int(white_rect_width/(2.7)), int(white_rect_width/2.7)))
+    resized_image_logo = image_logo.resize((int(white_rect_width/(2.5)), int(white_rect_width/2.5)))
     #Pone logo grande de RPCI a la derecha del QR y encima del Texto del TAG
-    logo_x = white_rect_width/2 + 10
+    logo_x = white_rect_width/2 + 15
     logo_y = top_margin + 10
 
     # Paste QR  Code created above  onto background
@@ -127,9 +116,9 @@ def create_TagTex_at_Bottom(qr_image):
     try:
         font_path = "C:/Windows/Fonts/arialbd.ttf"  # Adjust if using Mac/Linux
         # Para Equipos e instrumentos
-        font_size = 0.5
+        #font_size = 0.5
         #Para Blower y CCM
-        #font_size = 1
+        font_size = 1
 
 
         # Find optimal font size to match QR width
@@ -249,9 +238,9 @@ def create_qr_with_logo_label_and_frame(url, logo_path, output_path, qr_size, la
 logo_path = "Aros _RPCI.jpg"  # Path to your logo image file
 font_path = "arialbd.ttf"  # Path to Arial Black font file on your system
 #Para Equipos e Instrumentos
-BASE_WIDTH = 400 #valor pendiente de revisión
+#BASE_WIDTH = 400 #valor pendiente de revisión
 #Para Blower y CCM
-#BASE_WIDTH = 800 #valor pendiente de revisión
+BASE_WIDTH = 800 #valor pendiente de revisión
 BACKGROUND_COLOR = (255, 255, 255)  # White
 TEXT_COLOR = (0, 0, 0)  # Black
 # Calculate dimensions para tags tipo Tarjeta de Credito
