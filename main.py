@@ -1,5 +1,6 @@
 #main.py genera en Word los QR tipo TCard, está en orientacion portrait, el tamaño de la TCard es 5.5 * 8.6
-#La última ejecución  no uso este main.py porque queda pixelada la imagen del QR, se usó el main_blowers y luego en Word se cambio el tamaño y la orientación del papel
+#Usar para la ejecución de McCain porque queda pixelada la imagen del QR, se usó el main_blowers y luego en Word se cambio el tamaño y la orientación del papel
+import os
 import qrcode
 from PIL import Image, ImageDraw, ImageFont
 import time
@@ -99,10 +100,10 @@ def create_tag_text_logoRPCI(qr_image_with_TAG_Logo,qr_height,qr_width):
     image_logo = Image.open("LOGO_RPCI.jpg")
 
     # Resize the image to 200x200 pixels
-    resized_image_logo = image_logo.resize((int(white_rect_width/(2.7)), int(white_rect_width/2.7)))
-    #Pone logo grande de RPCI a la derecha del QR y encima del Texto del TAG
+    resized_image_logo = image_logo.resize((int(white_rect_width/(2.7)), int(white_rect_width/3.0))) #Ajustar para que la relacion w/h = 0.91
+     #Pone logo grande de RPCI a la derecha del QR y encima del Texto del TAG
     logo_x = white_rect_width/2 + 10
-    logo_y = top_margin + 10
+    logo_y = top_margin + 35 #Para alinearlo
 
     # Paste QR  Code created above  onto background
     qr_image_with_TAG_Logo.paste(resized_image_logo, (int(logo_x), int(logo_y)))
@@ -249,7 +250,7 @@ def create_qr_with_logo_label_and_frame(url, logo_path, output_path, qr_size, la
 logo_path = "Aros _RPCI.jpg"  # Path to your logo image file
 font_path = "arialbd.ttf"  # Path to Arial Black font file on your system
 #Para Equipos e Instrumentos
-BASE_WIDTH = 400 #valor pendiente de revisión
+BASE_WIDTH = 800 #valor pendiente de revisión
 #Para Blower y CCM
 #BASE_WIDTH = 800 #valor pendiente de revisión
 BACKGROUND_COLOR = (255, 255, 255)  # White
