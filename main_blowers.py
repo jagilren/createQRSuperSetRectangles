@@ -1,4 +1,5 @@
 #main_blowers.py genera en Word los QR tipo Adhesive, está en orientacion landscape
+# Los tipo Adhesivo son de Ancho 11 cm y alto 7 cm
 import os
 import qrcode
 from PIL import Image, ImageDraw, ImageFont
@@ -240,7 +241,7 @@ font_path = "arialbd.ttf"  # Path to Arial Black font file on your system
 #Para Equipos e Instrumentos
 #BASE_WIDTH = 400 #valor pendiente de revisión
 #Para Blower y CCM
-BASE_WIDTH = 800 #valor pendiente de revisión
+BASE_WIDTH = 800 #Puedes aumentar este valor cuando las imagenes quedan pixeladas en el PDF
 BACKGROUND_COLOR = (255, 255, 255)  # White
 TEXT_COLOR = (0, 0, 0)  # Black
 # Calculate dimensions para tags tipo Tarjeta de Credito

@@ -1,4 +1,5 @@
-#main.py genera en Word los QR tipo TCard, está en orientacion portrait, el tamaño de la TCard es 5.5 * 8.6
+#main.py genera en Word los QR tipo TCard, está en orientacion portrait, el tamaño de la TCard es Alto 5.5 * Ancho 8.6
+# Los tipo Adhesivo son de Ancho 11 cm y alto 7 cm
 #Usar para la ejecución de McCain porque queda pixelada la imagen del QR, se usó el main_blowers y luego en Word se cambio el tamaño y la orientación del papel
 import os
 import qrcode
@@ -250,7 +251,7 @@ def create_qr_with_logo_label_and_frame(url, logo_path, output_path, qr_size, la
 logo_path = "Aros _RPCI.jpg"  # Path to your logo image file
 font_path = "arialbd.ttf"  # Path to Arial Black font file on your system
 #Para Equipos e Instrumentos
-BASE_WIDTH = 800 #valor pendiente de revisión
+BASE_WIDTH = 800 #Puedes aumentar este valor cuando las imagenes quedan pixeladas en el PDF
 #Para Blower y CCM
 #BASE_WIDTH = 800 #valor pendiente de revisión
 BACKGROUND_COLOR = (255, 255, 255)  # White
