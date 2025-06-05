@@ -1,5 +1,5 @@
-#main.py genera en Word los QR tipo TCard, está en orientacion portrait
-import os
+#main.py genera en Word los QR tipo TCard, está en orientacion portrait, el tamaño de la TCard es 5.5 * 8.6
+#La última ejecución  no uso este main.py porque queda pixelada la imagen del QR, se usó el main_blowers y luego en Word se cambio el tamaño y la orientación del papel
 import qrcode
 from PIL import Image, ImageDraw, ImageFont
 import time

@@ -88,10 +88,10 @@ def create_tag_text_logoRPCI(qr_image_with_TAG_Logo,qr_height,qr_width):
     image_logo = Image.open("LOGO_RPCI.jpg")
 
     # Resize the image to 200x200 pixels
-    resized_image_logo = image_logo.resize((int(white_rect_width/(2.5)), int(white_rect_width/2.5)))
+    resized_image_logo = image_logo.resize((int(white_rect_width/(2.5)), int(white_rect_width/3.0))) #Para respetar la relación de aspecto del logo de W/H = 0.91
     #Pone logo grande de RPCI a la derecha del QR y encima del Texto del TAG
     logo_x = white_rect_width/2 + 15
-    logo_y = top_margin + 10
+    logo_y = top_margin + 35 #Para que el logo de RPCI quede centrado con respecto al QR
 
     # Paste QR  Code created above  onto background
     qr_image_with_TAG_Logo.paste(resized_image_logo, (int(logo_x), int(logo_y)))
@@ -143,7 +143,7 @@ def create_TagTex_at_Bottom(qr_image):
         text_bbox = font.getbbox(TAG)
         text_width = text_bbox[2] -text_bbox[0]
         if  len(TAG)>12:
-            text_height = int((text_bbox[3] - text_bbox[1])*2) #Se multiplica por un factor reductor para que el texto se un poc más alto
+            text_height = int((text_bbox[3] - text_bbox[1])*2) #Se multiplica por un factor reductor para que el texto se un poco más alto
         else:
             text_height = int((text_bbox[3] - text_bbox[
                 1])*1)  # Se multiplica por un factor reductor para que el texto no sea tan alto
