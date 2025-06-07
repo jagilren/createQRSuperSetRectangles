@@ -248,7 +248,7 @@ def create_qr_with_logo_label_and_frame(url, logo_path, output_path, qr_size, la
     return qr_img, qr_img.height, qr_img.width
 
 
-logo_path = "Aros _RPCI.jpg"  # Path to your logo image file
+logo_path = "mccain_logo.jpg"  # Path to your logo image file
 font_path = "arialbd.ttf"  # Path to Arial Black font file on your system
 #Para Equipos e Instrumentos
 BASE_WIDTH = 800 #Puedes aumentar este valor cuando las imagenes quedan pixeladas en el PDF
