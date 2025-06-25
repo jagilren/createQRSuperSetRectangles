@@ -49,12 +49,12 @@ def create_WordDocument():
 
         # Get the paragraph inside the cell
         paragraph = row[0].paragraphs[0]
+        paragraph_format = paragraph.paragraph_format
+        paragraph_format.space_before = Pt(0)
+        paragraph_format.space_after = Pt(0)
         # Center-align the paragraph
         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
-        # Add first image
-        # Para Blowers y CCM
-        #row[0].paragraphs[0].add_run().add_picture(image_files[i], width=Inches(3.7), height=Inches(2.2))
 
         # Para Equipos e Instrumentos
         row[0].paragraphs[0].add_run().add_picture(image_files[i], width=Inches(3.3),height=Inches(2.16))
@@ -67,8 +67,6 @@ def create_WordDocument():
         if i + 1 < len(image_files):
             # Para Equipos e Instrumentos
             row[1].paragraphs[0].add_run().add_picture(image_files[i + 1], width=Inches(3.3), height=Inches(2.16))
-            # Para Blowers y CCM
-            #row[1].paragraphs[0].add_run().add_picture(image_files[i + 1], width=Inches(3.7), height=Inches(2.2))
 
         # Set text in blank row (needed to control font size)
 
@@ -79,7 +77,6 @@ def create_WordDocument():
             # Remove space after the paragraph
             p_format = paragraph.paragraph_format
             p_format.space_after = Pt(0)  # Set space after to 0 pt
-
             paragraph = cell.paragraphs[0]
             run = paragraph.add_run(" ")  # Add a space so font can be applied
             # Para Equipos e Instrumentos

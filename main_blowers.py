@@ -37,6 +37,9 @@ def create_WordDocument():
 
         # Get the paragraph inside the cell
         paragraph = row[0].paragraphs[0]
+        paragraph_format = paragraph.paragraph_format
+        paragraph_format.space_before = Pt(0)
+        paragraph_format.space_after = Pt(0)
         # Center-align the paragraph
         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
