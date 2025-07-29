@@ -98,10 +98,12 @@ def create_tag_text_logoRPCI(qr_image_with_TAG_Logo,qr_height,qr_width):
     image_logo = Image.open("LOGO_RPCI.jpg")
 
     # Resize the image to 200x200 pixels
-    resized_image_logo = image_logo.resize((int(white_rect_width/(2.7)), int(white_rect_width/3.0))) #Ajustar para que la relacion w/h = 0.91
+    #resized_image_logo = image_logo.resize((int(white_rect_width/(2.7)), int(white_rect_width/3.0))) #Ajustar para que la relacion w/h = 0.91
+    resized_image_logo = image_logo.resize(
+        (168, 200))  #Julio 2025 07 28  'Este es el tamaño del Logo de RPCI para TCard Type
      #Pone logo grande de RPCI a la derecha del QR y encima del Texto del TAG
     logo_x = white_rect_width/2 + 10
-    logo_y = top_margin + 35 #Para alinearlo
+    logo_y = top_margin + 5 #Para alinearlo Esta medida funciona bien con TCard Type
 
     # Paste QR  Code created above  onto background
     qr_image_with_TAG_Logo.paste(resized_image_logo, (int(logo_x), int(logo_y)))
@@ -231,7 +233,7 @@ def create_qr_with_logo_label_and_frame(url, logo_path, output_path, qr_size, la
 
     # Calculate the logo size
     logo_size = int(qr_size * logo_size_ratio)
-    logo = logo.resize((logo_size, logo_size), Image.Resampling.LANCZOS)
+    logo = logo.resize((logo_size, int(logo_size)), Image.Resampling.LANCZOS)  #Julio  2025 07 28 Use Logo del Cleinte Cuadrado para que no se corrompa
 
     # Calculate position for the logo RPCI
     logo_position = (
@@ -245,7 +247,7 @@ def create_qr_with_logo_label_and_frame(url, logo_path, output_path, qr_size, la
     return qr_img, qr_img.height, qr_img.width
 
 
-logo_path = "mccain_logo.jpg"  # Path to your logo image file
+logo_path = "tecnoal.png"  # Path to your logo image file
 font_path = "arialbd.ttf"  # Path to Arial Black font file on your system
 #Para Equipos e Instrumentos
 BASE_WIDTH = 800 #Puedes aumentar este valor cuando las imagenes quedan pixeladas en el PDF

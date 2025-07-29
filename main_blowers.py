@@ -92,10 +92,13 @@ def create_tag_text_logoRPCI(qr_image_with_TAG_Logo,qr_height,qr_width):
     image_logo = Image.open("LOGO_RPCI.jpg")
 
     # Resize the image to 200x200 pixels
-    resized_image_logo = image_logo.resize((int(white_rect_width/(2.5)), int(white_rect_width/3.0))) #Para respetar la relación de aspecto del logo de W/H = 0.91
+    #resized_image_logo = image_logo.resize((int(white_rect_width/(2.5)), int(white_rect_width/3.0))) #Para respetar la relación de aspecto del logo de W/H = 0.91
+    resized_image_logo = image_logo.resize(
+        (181, 215))  # Julio 2025 07 29  'Este es el tamaño del Logo de RPCI para Adhesive Type La relación Heigth/Width = 1.19
+
     #Pone logo grande de RPCI a la derecha del QR y encima del Texto del TAG
     logo_x = white_rect_width/2 + 15
-    logo_y = top_margin + 35 #Para que el logo de RPCI quede centrado con respecto al QR
+    logo_y = top_margin + 5 #Para que el logo de RPCI quede centrado con respecto al QR
 
     # Paste QR  Code created above  onto background
     qr_image_with_TAG_Logo.paste(resized_image_logo, (int(logo_x), int(logo_y)))
@@ -239,7 +242,7 @@ def create_qr_with_logo_label_and_frame(url, logo_path, output_path, qr_size, la
     return qr_img, qr_img.height, qr_img.width
 
 
-logo_path = "mccain_logo.jpg"  # Path to your logo image file
+logo_path = "tecnoal.png"  # Path to your logo image file
 font_path = "arialbd.ttf"  # Path to Arial Black font file on your system
 #Para Equipos e Instrumentos
 #BASE_WIDTH = 400 #valor pendiente de revisión
