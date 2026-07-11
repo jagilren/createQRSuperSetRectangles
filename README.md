@@ -43,15 +43,24 @@ python gui.py
 
 **Atajo:** haz **doble clic en `run_windows.bat`** — crea el entorno, instala dependencias la primera vez y abre la interfaz.
 
-### Equipos sin Python (ejecutable .exe autónomo)
+### Equipos sin Python (aplicación portable)
 
-Para máquinas donde **no se puede instalar Python** (por políticas de la empresa), se genera un **`.exe` independiente** que ya lleva Python y las librerías dentro:
+Para máquinas donde **no se puede instalar Python** (por políticas de la empresa), se genera una **aplicación portable** que ya lleva Python y las librerías dentro. Se compila en modo **carpeta** (`--onedir`), que en **máquinas controladas** tiene menos restricciones: los antivirus lo marcan mucho menos que un `--onefile` y **no requiere permisos de administrador** (corre desde la carpeta del usuario, sin instalar nada).
 
-1. En una máquina Windows que **sí** tenga Python 3.12, haz **doble clic en `build_windows.bat`** (o córrelo desde la consola). Al terminar crea **`dist\GeneradorEtiquetasQR.exe`**.
-2. **Copia ese `.exe`** a los equipos sin Python. Se ejecuta con doble clic, sin instalar nada.
+Dos formas de obtenerla:
+
+- **Compilando en la nube (recomendado):** cada push a `master` dispara el workflow de GitHub Actions, que compila en un runner Windows y deja la app descargable en **Actions → (ejecución) → Artifacts → `GeneradorEtiquetasQR-windows`** (un `.zip`). No necesitas ninguna máquina con Python.
+- **Compilando localmente:** en una máquina Windows con Python 3.12, doble clic en **`build_windows.bat`**. Crea la carpeta **`dist\GeneradorEtiquetasQR\`**.
+
+Para usarla en los equipos sin Python:
+
+1. **Copia la carpeta completa** (o el `.zip`) al equipo y descomprímela. ⚠️ **No muevas solo el `.exe`**: necesita los archivos vecinos (`_internal\`) para funcionar.
+2. Ejecuta **`GeneradorEtiquetasQR.exe`** (doble clic, sin instalar nada).
 3. Junto al `.exe`, deja tu **`TAGS.csv`** (y, si quieres tus propios logos, `cliente.png` y `LOGO_RPCI.jpg`). Ahí mismo se generan la carpeta **`URLS\`** y el documento **`Images_Table.docx`**.
 
-El `.exe` se compila con [PyInstaller](https://pyinstaller.org/) (`--onefile --windowed`). Nota: PyInstaller **no** puede generar un `.exe` de Windows desde Linux/WSL; la compilación debe hacerse en Windows.
+Se compila con [PyInstaller](https://pyinstaller.org/) (`--onedir --windowed`). Nota: PyInstaller **no** puede generar un ejecutable de Windows desde Linux/WSL; la compilación debe hacerse en Windows (por eso el CI usa un runner `windows-latest`).
+
+> Si aun así aparece la advertencia de SmartScreen ("editor desconocido"), es porque el `.exe` **no está firmado digitalmente**, no porque sea malicioso. En equipos corporativos lo más limpio es que TI **apruebe/firme** el ejecutable o lo distribuya por su sistema (Intune/SCCM). La solución definitiva es firmarlo con un **certificado de firma de código**.
 
 Linux / Ubuntu:
 

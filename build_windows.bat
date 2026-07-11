@@ -32,11 +32,13 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM 3) Compilar a un unico .exe con ventana (sin consola).
-REM    Se empaquetan los logos de muestra como respaldo; el usuario
-REM    igual puede elegir sus propios archivos desde la interfaz.
-echo Compilando el ejecutable ...
-".venv\Scripts\python.exe" -m PyInstaller --noconfirm --onefile --windowed ^
+REM 3) Compilar en modo CARPETA (--onedir) con ventana (sin consola).
+REM    --onedir se marca mucho menos por los antivirus que --onefile y no
+REM    necesita permisos de administrador (ideal para maquinas controladas).
+REM    Se empaquetan los logos de muestra como respaldo; el usuario igual
+REM    puede elegir sus propios archivos desde la interfaz.
+echo Compilando la aplicacion (modo carpeta) ...
+".venv\Scripts\python.exe" -m PyInstaller --noconfirm --onedir --windowed ^
     --name "GeneradorEtiquetasQR" ^
     --add-data "cliente.png;." ^
     --add-data "LOGO_RPCI.jpg;." ^
@@ -49,12 +51,18 @@ if errorlevel 1 (
 
 echo.
 echo ================================================================
-echo  LISTO. El ejecutable esta en:  dist\GeneradorEtiquetasQR.exe
+echo  LISTO. La aplicacion esta en la carpeta:
+echo      dist\GeneradorEtiquetasQR\
+echo  El ejecutable es:
+echo      dist\GeneradorEtiquetasQR\GeneradorEtiquetasQR.exe
 echo.
-echo  Copialo a los equipos sin Python. Junto al .exe deja tu
-echo  TAGS.csv (y, si quieres tus propios logos, cliente.png y
-echo  LOGO_RPCI.jpg). Ahi mismo se generaran la carpeta URLS\ y el
-echo  documento Images_Table.docx.
+echo  IMPORTANTE: distribuye la CARPETA COMPLETA (comprimela en .zip
+echo  y copiala entera). NO muevas solo el .exe: necesita los archivos
+echo  vecinos para funcionar.
+echo.
+echo  Junto al .exe deja tu TAGS.csv (y, si quieres tus propios logos,
+echo  cliente.png y LOGO_RPCI.jpg). Ahi mismo se generaran la carpeta
+echo  URLS\ y el documento Images_Table.docx.
 echo ================================================================
 pause
 endlocal

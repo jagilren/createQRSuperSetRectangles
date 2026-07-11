@@ -29,24 +29,32 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt pyinstaller
 
-      - name: Compilar el ejecutable
+      # Modo carpeta (--onedir): mucho menos falsos positivos de antivirus y
+      # sin requerir permisos de administrador (mejor para máquinas controladas).
+      - name: Compilar la aplicación (modo carpeta)
         run: >
-          pyinstaller --noconfirm --onefile --windowed
+          pyinstaller --noconfirm --onedir --windowed
           --name "GeneradorEtiquetasQR"
           --add-data "cliente.png;."
           --add-data "LOGO_RPCI.jpg;."
           gui.py
 
-      - name: Subir el .exe como artefacto descargable
+      # El artefacto de Actions se descarga como .zip con la carpeta completa.
+      - name: Subir la aplicación como artefacto descargable
         uses: actions/upload-artifact@v4
         with:
           name: GeneradorEtiquetasQR-windows
-          path: dist/GeneradorEtiquetasQR.exe
+          path: dist/GeneradorEtiquetasQR/
           if-no-files-found: error
 
-      # Si el push fue de una etiqueta vX.Y.Z, además publica el .exe en Releases.
+      # Para Releases se necesita un único archivo: comprimimos la carpeta.
+      - name: Comprimir la carpeta en un .zip (solo en etiquetas v*)
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: Compress-Archive -Path dist/GeneradorEtiquetasQR/* -DestinationPath GeneradorEtiquetasQR-windows.zip
+        shell: pwsh
+
       - name: Publicar en Release (solo en etiquetas v*)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/GeneradorEtiquetasQR.exe
+          files: GeneradorEtiquetasQR-windows.zip
