@@ -126,7 +126,13 @@ def create_TagTex_at_Bottom(qr_image):
 
     # Calculate text position and size
     try:
-        font_path = "C:/Windows/Fonts/arialbd.ttf"  # Adjust if using Mac/Linux
+        # Selección de fuente multiplataforma.
+        # USUARIOS DE WINDOWS: si quieren forzar Arial Bold, descomenten la línea de abajo.
+        # En Windows la ruta "C:/Windows/Fonts/arialbd.ttf" existe; en Linux/Mac NO,
+        # y sin este fallback el texto del TAG cae a la fuente por defecto (diminuta).
+        # font_path = "C:/Windows/Fonts/arialbd.ttf"  # Arial Bold (solo Windows)
+        _win_arial = "C:/Windows/Fonts/arialbd.ttf"
+        font_path = _win_arial if os.path.exists(_win_arial) else "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
         # Para Equipos e instrumentos
         font_size = 0.5
         #Para Blower y CCM

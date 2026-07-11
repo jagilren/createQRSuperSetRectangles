@@ -1,0 +1,11 @@
+# Entorno virtual
+.venv/
+venv/
+
+# Cache de Python
+__pycache__/
+*.py[cod]
+
+# Archivos temporales de Microsoft Word (lock de documento abierto)
+~$*.docx
+~$*.doc

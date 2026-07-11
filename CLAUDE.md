@@ -12,18 +12,30 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Run (generates QR labels into `URLS/` and builds `Images_Table.docx`):
+Run — three entry points, all producing the same output (PNGs in `URLS/` + a Word doc):
 
 ```bash
-python main.py            # TCard labels, portrait, 5.5cm x 8.6cm
-python main_blowers.py    # Adhesive labels, landscape, 11cm x 7cm (Blowers/CCM)
+python gui.py                            # desktop GUI (Tkinter) — pick type, CSV, output
+python qr_generator.py tcard TAGS.csv    # CLI, TCard mode
+python qr_generator.py adhesive TAGS.csv # CLI, Adhesive mode
+python main.py                           # legacy TCard script, portrait, 5.5cm x 8.6cm
+python main_blowers.py                   # legacy Adhesive script, landscape, 11cm x 7cm
 ```
 
-There is no test suite, linter, or build/packaging config in this repo — it's two standalone scripts run directly.
+The GUI needs Tkinter; on Ubuntu/Debian install it with `sudo apt install python3-tk` (it ships with Python on Windows).
+
+There is no test suite, linter, or build/packaging config in this repo.
 
 ## Architecture
 
-`main.py` and `main_blowers.py` are near-duplicate pipelines (same function names, same structure) that differ only in orientation/sizing constants and which of their internally commented-out blocks are active. There is no shared module between them — changes usually need to be applied to both files.
+There are now two layers:
+
+- **`qr_generator.py`** — the canonical shared engine. All label logic lives here, parameterized by a `mode` (`"tcard"` / `"adhesive"`) whose differences are collected in the `PRESETS` dict (Word orientation, image size, spacer font pt, RPCI-logo size/offset, initial font size, margins). Nothing runs on import; call `generate(csv_path, mode=..., output_dir=..., docx_path=..., progress=...)`. It creates `output_dir` if missing and resolves the font per-OS via `resolve_font_path()` (Arial Bold on Windows, DejaVu Sans Bold on Linux/Mac). Verified pixel-identical to the original `main.py` output in tcard mode.
+- **`gui.py`** — Tkinter desktop UI over the engine. Runs `generate()` in a worker thread and marshals progress back to the UI via a `queue.Queue` polled with `root.after`. No generation logic of its own.
+
+**`main.py` / `main_blowers.py` are the legacy scripts**, kept for compatibility. They are near-duplicate pipelines (same function names, same structure) that differ only in orientation/sizing constants and which of their internally commented-out blocks are active. They do NOT share code with `qr_generator.py` — the engine is a faithful re-implementation, not an import. Prefer editing `qr_generator.py` (single source of truth) for new work; only touch the legacy scripts if a caller still depends on them.
+
+Legacy-script pipeline (both scripts run top-to-bottom, no `if __name__ == "__main__"` guard):
 
 Each script runs top-to-bottom as a script (no `if __name__ == "__main__"` guard) in this order:
 

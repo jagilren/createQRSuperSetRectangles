@@ -2,24 +2,47 @@
 
 Genera etiquetas con código QR (logo del cliente al centro + logo de RPCI + texto del TAG) a partir de un listado de enlaces en CSV, y las inserta automáticamente en una tabla de un documento Word listo para imprimir.
 
-Incluye dos variantes según el tipo de etiqueta a producir:
+Incluye dos tipos de etiqueta:
 
-| Script | Etiqueta | Orientación | Tamaño físico |
+| Tipo | Etiqueta | Orientación | Tamaño físico |
 |---|---|---|---|
-| `main.py` | TCard (tipo tarjeta / credencial) | Portrait | 5.5 cm alto x 8.6 cm ancho |
-| `main_blowers.py` | Adhesivo (Blowers / CCM) | Landscape | 11 cm ancho x 7 cm alto |
+| TCard | tipo tarjeta / credencial (Equipos e Instrumentos) | Portrait | 5.5 cm alto x 8.6 cm ancho |
+| Adhesivo | Blowers / CCM | Landscape | 11 cm ancho x 7 cm alto |
+
+## Formas de uso
+
+Hay tres maneras de generar las etiquetas, todas usando el mismo motor (`qr_generator.py`):
+
+1. **Interfaz gráfica (recomendada)** — `python gui.py`: eliges el tipo de etiqueta, seleccionas el CSV fuente y la salida, y generas con un botón.
+2. **Línea de comandos** — `python qr_generator.py tcard TAGS.csv` (o `adhesive`).
+3. **Scripts originales** — `python main.py` (TCard) y `python main_blowers.py` (Adhesivo), que se conservan por compatibilidad.
 
 ## Requisitos
 
-- Windows con Python 3.12 (el script usa la fuente `C:/Windows/Fonts/arialbd.ttf`, por lo que solo corre en Windows tal cual está).
+- **Python 3.12** en Windows o Linux/Ubuntu (multiplataforma). La fuente se resuelve automáticamente: Arial Bold en Windows, DejaVu Sans Bold en Linux/Mac.
 - Dependencias de Python: ver `requirements.txt` (`qrcode`, `pillow`, `python-docx`).
+- Para la interfaz gráfica se usa **Tkinter** (viene con Python). En Ubuntu/Debian, si no está, instálalo con:
+  ```bash
+  sudo apt install python3-tk
+  ```
 
 ## Instalación
+
+Windows:
 
 ```bash
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
+```
+
+Linux / Ubuntu:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+sudo apt install python3-tk   # solo si vas a usar la interfaz gráfica
 ```
 
 ## Archivos de entrada necesarios
@@ -33,34 +56,51 @@ Deben existir en la raíz del proyecto antes de ejecutar:
   - `LINK`: URL completa a codificar en el QR
 - **`cliente.png`** — logo del cliente, se pega al centro del QR.
 - **`LOGO_RPCI.jpg`** — logo de RPCI, se pega a la derecha del QR.
-- **Carpeta `URLS/`** — debe existir de antemano (el script no la crea); ahí se guarda cada etiqueta generada como `URLS/<TAG>.png`.
+- **Carpeta `URLS/`** — el motor (`qr_generator.py` / `gui.py`) la crea si no existe. Ahí se guarda cada etiqueta como `URLS/<TAG>.png`. (Los scripts originales `main.py`/`main_blowers.py` todavía requieren que exista de antemano.)
 
 ## Uso
 
-Etiquetas tipo TCard (portrait):
+### Interfaz gráfica (recomendada)
 
 ```bash
-python main.py
+python gui.py        # Windows
+python3 gui.py       # Linux / Mac
 ```
 
-Etiquetas tipo Adhesivo (landscape, Blowers/CCM):
+En la ventana: (1) elige TCard o Adhesivo, (2) selecciona el CSV fuente (y opcionalmente los logos y la carpeta/documento de salida), (3) pulsa **Generar etiquetas**. Una barra de progreso y un registro muestran el avance.
+
+En modo **Adhesivo** se habilita el campo **Ancho (cm)**. **El ancho manda**: la imagen se inserta con exactamente ese ancho y el **Alto (cm)** se calcula solo por proporción y se muestra (no editable), para que el QR y el logo **nunca se deformen**. Por ejemplo, 15 cm de ancho → imagen de 15 × 8.87 cm. (No se pueden fijar ancho y alto a la vez sin deformar la imagen, por eso el alto es automático.)
+
+**Número de columnas del Word (adhesivo):** si el ancho es **≤ 13 cm** la tabla usa 2 columnas (dos adhesivos por fila); si es **> 13 cm** usa 1 sola columna (incluso con la hoja en horizontal). El umbral está en la constante `ADHESIVE_TWO_COLUMN_MAX_CM` de `qr_generator.py`.
+
+### Línea de comandos
 
 ```bash
-python main_blowers.py
+python qr_generator.py tcard TAGS.csv      # TCard
+python qr_generator.py adhesive TAGS.csv   # Adhesivo
+```
+
+### Scripts originales (compatibilidad)
+
+```bash
+python main.py            # TCard (portrait)
+python main_blowers.py    # Adhesivo (landscape, Blowers/CCM)
 ```
 
 Cada ejecución:
 
-1. Lee `TAGS.csv` y genera un PNG por fila en `URLS/` (QR + logo cliente + logo RPCI + texto TAG).
-2. Arma `Images_Table.docx` con todas las imágenes de `URLS/` en una tabla de 2 columnas, lista para imprimir/cortar.
+1. Lee el CSV y genera un PNG por fila en la carpeta de salida (QR + logo cliente + logo RPCI + texto TAG).
+2. Arma el documento Word con todas las imágenes en una tabla de 2 columnas, lista para imprimir/cortar.
 
-## Ajustes según tipo de trabajo
+## Ajustes según tipo de etiqueta
 
-Dentro de ambos scripts hay bloques de código comentados (marcados como *"Para Equipos e Instrumentos"* vs *"Para Blowers y CCM"*) que ajustan tamaños de imagen, márgenes y tamaño de fuente según el tipo de etiqueta. Al cambiar de un tipo de trabajo a otro, hay que comentar/descomentar manualmente el bloque correspondiente antes de ejecutar (por ejemplo `BASE_WIDTH`, los tamaños de imagen en `create_WordDocument`, y el tamaño de fuente de la fila en blanco).
+Las diferencias entre TCard y Adhesivo (orientación del Word, tamaño de imagen, tamaño de fuente, tamaño y posición del logo RPCI) están centralizadas en el diccionario `PRESETS` de `qr_generator.py`. Con la GUI o la CLI **no** hay que editar código: basta elegir el tipo. Los scripts originales conservan los bloques comentados *"Para Equipos e Instrumentos"* vs *"Para Blowers y CCM"* que había que alternar a mano.
 
 ## Estructura del repositorio
 
-- `main.py`, `main_blowers.py` — scripts principales.
+- `gui.py` — interfaz gráfica de escritorio (Tkinter).
+- `qr_generator.py` — motor compartido parametrizado (tcard/adhesive); usable por GUI, CLI o import.
+- `main.py`, `main_blowers.py` — scripts originales, conservados por compatibilidad.
 - `logos/` — logos de clientes usados en distintos proyectos.
 - `TCard/`, `Adhesive/` — CSVs y documentos (Word/PDF) generados históricamente por cliente, agrupados por tipo de etiqueta.
 - `URLS/` — salida de las imágenes QR generadas en la última ejecución.
