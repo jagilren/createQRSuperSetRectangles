@@ -10,6 +10,11 @@ on:
     tags: ["v*"]
   workflow_dispatch:
 
+# Necesario para que el paso "Publicar en Release" pueda ESCRIBIR en el repo
+# (subir el .zip/.tar.gz). Sin esto el token es de solo lectura y da error 403.
+permissions:
+  contents: write
+
 jobs:
   # --------------------------------------------------------------------- #
   # WINDOWS: genera GeneradorEtiquetasQR.exe (PyInstaller corre en Windows).
