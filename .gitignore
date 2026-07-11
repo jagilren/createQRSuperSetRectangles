@@ -9,3 +9,8 @@ __pycache__/
 # Archivos temporales de Microsoft Word (lock de documento abierto)
 ~$*.docx
 ~$*.doc
+
+# Artefactos de compilación de PyInstaller (.exe y temporales del build)
+build/
+dist/
+*.spec

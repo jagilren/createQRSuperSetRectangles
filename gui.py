@@ -14,6 +14,7 @@ Toda la lógica de generación vive en qr_generator.py; esta capa es solo la UI.
 """
 
 import os
+import sys
 import queue
 import threading
 import traceback
@@ -30,14 +31,33 @@ except ImportError:  # pragma: no cover
 import qr_generator as engine
 
 
-# Directorio del script: usado para resolver los archivos por defecto sin
-# depender del directorio de trabajo desde el que se lance la app.
-APP_DIR = os.path.dirname(os.path.abspath(__file__))
+# Carpeta base para las rutas por defecto y las salidas.
+# - Ejecutable PyInstaller (.exe): la carpeta donde está el .exe (escribible y
+#   persistente; ahí el usuario deja su CSV/logos y ahí se generan URLS/ y el Word).
+# - Script normal: la carpeta del proyecto.
+if getattr(sys, "frozen", False):
+    APP_DIR = os.path.dirname(sys.executable)
+else:
+    APP_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Carpeta de recursos empaquetados dentro del .exe (logos de muestra incluidos
+# en el build). Sirve de respaldo si el usuario no dejó sus propios archivos
+# junto al ejecutable.
+_RESOURCE_DIR = getattr(sys, "_MEIPASS", APP_DIR)
 
 
 def _default(path):
-    """Ruta por defecto relativa a la carpeta del proyecto."""
+    """Ruta por defecto para archivos junto al proyecto/ejecutable."""
     return os.path.join(APP_DIR, path)
+
+
+def _default_asset(path):
+    """Ruta por defecto de un asset (logo): junto al .exe si existe, si no el
+    recurso empaquetado en el build."""
+    beside = os.path.join(APP_DIR, path)
+    if os.path.exists(beside):
+        return beside
+    return os.path.join(_RESOURCE_DIR, path)
 
 
 class QRLabelApp:
@@ -53,8 +73,8 @@ class QRLabelApp:
         # Variables de la UI.
         self.mode_var = tk.StringVar(value="tcard")
         self.csv_var = tk.StringVar(value=_default("TAGS.csv"))
-        self.client_logo_var = tk.StringVar(value=_default("cliente.png"))
-        self.rpci_logo_var = tk.StringVar(value=_default("LOGO_RPCI.jpg"))
+        self.client_logo_var = tk.StringVar(value=_default_asset("cliente.png"))
+        self.rpci_logo_var = tk.StringVar(value=_default_asset("LOGO_RPCI.jpg"))
         self.out_dir_var = tk.StringVar(value=_default("URLS"))
         self.docx_var = tk.StringVar(value=_default("Images_Table.docx"))
         # Tamaño de la etiqueta Adhesivo (cm). La imagen se ajusta DENTRO de

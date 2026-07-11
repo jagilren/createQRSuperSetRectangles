@@ -28,13 +28,30 @@ Hay tres maneras de generar las etiquetas, todas usando el mismo motor (`qr_gene
 
 ## Instalación
 
-Windows:
+Windows (nativo, sin WSL):
 
-```bash
+Instala **Python 3.12** desde [python.org](https://www.python.org/downloads/windows/) marcando *"Add python.exe to PATH"* (Tkinter viene incluido; no hace falta instalar nada aparte). Luego:
+
+```bat
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
+python gui.py
 ```
+
+> Si PowerShell bloquea `activate`, ejecuta una vez `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`, o usa directamente `.venv\Scripts\python.exe gui.py` sin activar.
+
+**Atajo:** haz **doble clic en `run_windows.bat`** — crea el entorno, instala dependencias la primera vez y abre la interfaz.
+
+### Equipos sin Python (ejecutable .exe autónomo)
+
+Para máquinas donde **no se puede instalar Python** (por políticas de la empresa), se genera un **`.exe` independiente** que ya lleva Python y las librerías dentro:
+
+1. En una máquina Windows que **sí** tenga Python 3.12, haz **doble clic en `build_windows.bat`** (o córrelo desde la consola). Al terminar crea **`dist\GeneradorEtiquetasQR.exe`**.
+2. **Copia ese `.exe`** a los equipos sin Python. Se ejecuta con doble clic, sin instalar nada.
+3. Junto al `.exe`, deja tu **`TAGS.csv`** (y, si quieres tus propios logos, `cliente.png` y `LOGO_RPCI.jpg`). Ahí mismo se generan la carpeta **`URLS\`** y el documento **`Images_Table.docx`**.
+
+El `.exe` se compila con [PyInstaller](https://pyinstaller.org/) (`--onefile --windowed`). Nota: PyInstaller **no** puede generar un `.exe` de Windows desde Linux/WSL; la compilación debe hacerse en Windows.
 
 Linux / Ubuntu:
 
