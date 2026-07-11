@@ -58,7 +58,7 @@ Para usarla en los equipos sin Python:
 2. Ejecuta **`GeneradorEtiquetasQR.exe`** (doble clic, sin instalar nada).
 3. Junto al `.exe`, deja tu **`TAGS.csv`** (y, si quieres tus propios logos, `cliente.png` y `LOGO_RPCI.jpg`). Ahí mismo se generan la carpeta **`URLS\`** y el documento **`Images_Table.docx`**.
 
-Se compila con [PyInstaller](https://pyinstaller.org/) (`--onedir --windowed`). Nota: PyInstaller **no** puede generar un ejecutable de Windows desde Linux/WSL; la compilación debe hacerse en Windows (por eso el CI usa un runner `windows-latest`).
+Se compila con [PyInstaller](https://pyinstaller.org/) (`--onedir`). Cada sistema operativo produce su propio ejecutable (Windows → `.exe`, Linux → binario ELF), por eso el workflow de GitHub Actions tiene **dos jobs**: uno en `windows-latest` y otro en `ubuntu-latest`. Tras cada push encontrarás **ambos** en Actions → Artifacts: `GeneradorEtiquetasQR-windows` y `GeneradorEtiquetasQR-linux`. (PyInstaller no puede compilar para otro SO distinto al que corre, por eso se usan runners de cada plataforma.)
 
 > Si aun así aparece la advertencia de SmartScreen ("editor desconocido"), es porque el `.exe` **no está firmado digitalmente**, no porque sea malicioso. En equipos corporativos lo más limpio es que TI **apruebe/firme** el ejecutable o lo distribuya por su sistema (Intune/SCCM). La solución definitiva es firmarlo con un **certificado de firma de código**.
 

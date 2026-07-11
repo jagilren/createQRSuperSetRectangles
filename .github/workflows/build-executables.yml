@@ -1,0 +1,108 @@
+name: Compilar ejecutables (Windows y Linux)
+
+# Cuándo se ejecuta:
+# - En cada push a master (para tener siempre los ejecutables más recientes).
+# - Manualmente desde la pestaña "Actions" (botón "Run workflow").
+# - Al crear una etiqueta vX.Y.Z, además publica los ejecutables en una Release.
+on:
+  push:
+    branches: [master]
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  # --------------------------------------------------------------------- #
+  # WINDOWS: genera GeneradorEtiquetasQR.exe (PyInstaller corre en Windows).
+  # --------------------------------------------------------------------- #
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"   # en Windows, Tkinter viene incluido
+
+      - name: Instalar dependencias y PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      # Modo carpeta (--onedir): menos falsos positivos de antivirus y sin
+      # requerir permisos de administrador. En Windows --add-data usa ';'.
+      - name: Compilar la aplicación (modo carpeta)
+        run: >
+          pyinstaller --noconfirm --onedir --windowed
+          --name "GeneradorEtiquetasQR"
+          --add-data "cliente.png;."
+          --add-data "LOGO_RPCI.jpg;."
+          gui.py
+
+      - name: Subir la app de Windows como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: GeneradorEtiquetasQR-windows
+          path: dist/GeneradorEtiquetasQR/
+          if-no-files-found: error
+
+      - name: Comprimir en .zip (solo en etiquetas v*)
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: Compress-Archive -Path dist/GeneradorEtiquetasQR/* -DestinationPath GeneradorEtiquetasQR-windows.zip
+        shell: pwsh
+
+      - name: Publicar en Release (solo en etiquetas v*)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: GeneradorEtiquetasQR-windows.zip
+
+  # --------------------------------------------------------------------- #
+  # LINUX: genera el binario GeneradorEtiquetasQR (ELF, sin extensión).
+  # --------------------------------------------------------------------- #
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      # En Linux, PyInstaller necesita python3-tk para empaquetar la GUI Tkinter.
+      # Usamos el Python del sistema (3.12 en ubuntu-latest) para que el venv vea
+      # el módulo tkinter recién instalado.
+      - name: Instalar Tkinter del sistema
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-tk
+
+      - name: Crear entorno e instalar dependencias
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install -r requirements.txt pyinstaller
+
+      # En Linux --add-data usa ':' como separador (no ';').
+      - name: Compilar la aplicación (modo carpeta)
+        run: >
+          .venv/bin/pyinstaller --noconfirm --onedir
+          --name "GeneradorEtiquetasQR"
+          --add-data "cliente.png:."
+          --add-data "LOGO_RPCI.jpg:."
+          gui.py
+
+      - name: Subir la app de Linux como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: GeneradorEtiquetasQR-linux
+          path: dist/GeneradorEtiquetasQR/
+          if-no-files-found: error
+
+      - name: Comprimir en .tar.gz (solo en etiquetas v*)
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: tar -czf GeneradorEtiquetasQR-linux.tar.gz -C dist GeneradorEtiquetasQR
+
+      - name: Publicar en Release (solo en etiquetas v*)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: GeneradorEtiquetasQR-linux.tar.gz
