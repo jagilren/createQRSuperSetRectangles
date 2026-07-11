@@ -242,7 +242,7 @@ def create_qr_with_logo_label_and_frame(url, logo_path, output_path, qr_size, la
     return qr_img, qr_img.height, qr_img.width
 
 
-logo_path = "tecnoal.png"  # Path to your logo image file
+logo_path = "cliente.png"  # Path to your logo image file
 font_path = "arialbd.ttf"  # Path to Arial Black font file on your system
 #Para Equipos e Instrumentos
 #BASE_WIDTH = 400 #valor pendiente de revisión
@@ -264,8 +264,9 @@ with open("TAGS.csv", mode='r', newline='', encoding='utf-8') as file:
 
     # Iterate through each row
     for row in reader:
+        DOMAIN=row['DOMAIN']
+        SUBSITE=row['SUBSITE']
         TAG = row['TAG']  # Access the TAG column
-        PREFIX=row['PREFIX']
         LINK = row['LINK']  # Access the Link column
         output_path = f'URLS/{TAG}.png'  # Output file path for the QR code with logo, label, and frame
 
